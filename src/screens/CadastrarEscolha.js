@@ -7,11 +7,11 @@ const CadastrarEscolha = () => {
   const navigation = useNavigation();
 
   const handleCadastroProdutoRemetentePress = () => {
-    navigation.navigate('CadastroProdutoRemetente');
+    navigation.navigate('CadastroProduto');
   };
 
   const handleCadastroRotaOrigemPress = () => {
-    navigation.navigate('CadastroRotaOrigem');
+    navigation.navigate('CadastroRota');
   };
 
   return (

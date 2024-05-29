@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
@@ -12,25 +11,24 @@ const CriarNovaConta = () => {
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
 
-  const handleVerificarEmailPress = async () => {
-    console.log('Dados a serem enviados:', { nome, cpf, telefone, email });
-  
+  const handleCriarContaPress = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/usuarios', { nome, cpf, telefone, email });
+      const response = await axios.post('http://localhost:8081/api/usuarios', { nome, cpf, telefone, email });
       console.log('Resposta da API:', response.data);
       if (response.status === 201) {
-        const userId = response.data.id; // Supondo que o ID do usuário está em response.data.id
+        const userId = response.data.id;
         console.log('Navegando para CriarSenha com userId:', userId);
-        navigation.navigate('CriarSenha', { userId }); // Passa o ID do usuário para a próxima tela
+        navigation.navigate('CriarSenha', { userId });
       } else {
         console.error('Erro na criação do usuário:', response.data);
+        Alert.alert('Erro', 'Ocorreu um erro ao criar a conta. Por favor, tente novamente mais tarde.');
       }
     } catch (error) {
       console.error('Erro na solicitação:', error.response ? error.response.data : error.message);
+      Alert.alert('Erro', 'Ocorreu um erro ao criar a conta. Por favor, tente novamente mais tarde.');
     }
   };  
   
-
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -75,7 +73,7 @@ const CriarNovaConta = () => {
           onChangeText={setEmail}
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleVerificarEmailPress}>
+      <TouchableOpacity style={styles.button} onPress={handleCriarContaPress}>
         <Text style={styles.buttonText}>CONTINUAR</Text>
       </TouchableOpacity>
     </View>

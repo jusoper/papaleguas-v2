@@ -20,7 +20,7 @@ const CriarSenha = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/usuarios/senha', { userId, senha });
+      const response = await axios.post("http://192.168.2.229:8081/usuarios/senha", { userId, senha });
       console.log('Resposta da API:', response.data);
       if (response.status === 200) {
         console.log('Senha atualizada com sucesso');

@@ -24,6 +24,9 @@ import Contato from '../screens/Contato.js';
 import Home from '../screens/Home.js';
 import Envios from '../screens/Envios.js';
 import Rotas from '../screens/Rotas.js';
+import EditarPerfil from '../screens/EditarPerfil.js';
+import CadastroProduto from '../screens/CadastroProduto.js';
+import CadastroRota from '../screens/CadastroRota.js';
 
 const Stack = createStackNavigator();
 
@@ -54,6 +57,9 @@ const Navigation = () => {
         <Stack.Screen name="Contato" component={Contato} />
         <Stack.Screen name="Envios" component={Envios} />
         <Stack.Screen name="Rotas" component={Rotas} />
+        <Stack.Screen name="EditarPerfil" component={EditarPerfil} />
+        <Stack.Screen name="CadastroProduto" component={CadastroProduto} />
+        <Stack.Screen name="CadastroRota" component={CadastroRota} />
       </Stack.Navigator>
     </NavigationContainer>
   );

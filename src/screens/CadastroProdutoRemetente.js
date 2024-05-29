@@ -34,15 +34,6 @@ const CadastroProdutoRemetente = () => {
           placeholderStyle={styles.placeholder}
         />
       </View>
-      <Text style={styles.label}>E-mail</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Insira seu e-mail"
-          placeholderTextColor="#525252"
-          placeholderStyle={styles.placeholder}
-        />
-      </View>
       <Text style={styles.label}>Telefone</Text>
       <View style={styles.inputContainer}>
         <TextInput
@@ -97,6 +88,15 @@ const CadastroProdutoRemetente = () => {
         <TextInput
           style={styles.input}
           placeholder="Estado"
+          placeholderTextColor="#525252"
+          placeholderStyle={styles.placeholder}
+        />
+      </View>
+      <Text style={styles.label}>País</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="País"
           placeholderTextColor="#525252"
           placeholderStyle={styles.placeholder}
         />

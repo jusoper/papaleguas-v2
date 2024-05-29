@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
 
 const Envios = ({ navigation }) => {
+  const [envios, setEnvios] = useState([]);
+
+  useEffect(() => {
+    async function fetchEnvios() {
+      try {
+        const response = await axios.get('http://localhost:3001/produtos');
+        setEnvios(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar envios:', error);
+      }
+    }
+
+    fetchEnvios();
+  }, []);
+
   const navigationItems = [
     { name: 'Home', icon: 'home', screen: 'Home', color: '#525252' },
     { name: 'Envios', icon: 'cube', screen: 'Envios', color: '#2B2D82' },
@@ -31,58 +47,26 @@ const Envios = ({ navigation }) => {
           <Text style={styles.userName}>Julia</Text>
         </View>
 
-
         <Text style={styles.sectionTitle}>Próximo Envio</Text>
 
-        <View style={styles.bannerContainer}>
-          <View style={styles.bannerIconContainer}>
-            <Icon name="cube" size={30} color="#FFFFFF" />
+        {/* Se existirem envios, renderize-os */}
+        {envios.map((envio, index) => (
+          <View key={index} style={styles.bannerContainer}>
+            <View style={styles.bannerIconContainer}>
+              <Icon name="cube" size={30} color="#FFFFFF" />
+            </View>
+            <View style={styles.bannerTextContainer}>
+              <Text style={styles.bannerTitle}>Envio</Text>
+              <Text style={styles.bannerText}>
+                {envio.tamanhoProduto} | {envio.enderecoColeta} | {envio.data}
+              </Text>
+            </View>
           </View>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerTitle}>Envio</Text>
-            <Text style={styles.bannerText}>
-              Pacote Médio | Atibaia | 24/05
-            </Text>
-          </View>
-        </View>
+        ))}
 
         <Text style={styles.sectionTitle}>Últimos Envios</Text>
 
-        <View style={styles.bannerContainer}>
-          <View style={styles.bannerIconContainer}>
-            <Icon name="file-text" size={30} color="#FFFFFF" />
-          </View>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerTitle}>Envio</Text>
-            <Text style={styles.bannerText}>
-              Pacote Pequeno | Atibaia | 12/05
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.bannerContainer}>
-          <View style={styles.bannerIconContainer}>
-            <Icon name="cube" size={30} color="#FFFFFF" />
-          </View>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerTitle}>Envio</Text>
-            <Text style={styles.bannerText}>
-              Pacote Médio | Atibaia | 09/05
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.bannerContainer}>
-          <View style={styles.bannerIconContainer}>
-            <Icon name="shopping-cart" size={30} color="#FFFFFF" />
-          </View>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerTitle}>Envio</Text>
-            <Text style={styles.bannerText}>
-              Pacote Grande | Bragança Paulista | 04/05
-            </Text>
-          </View>
-        </View>
+        {/* Restante do código... */}
       </View>
 
       {/* Barra de Navegação */}
