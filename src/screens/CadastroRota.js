@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
-const CadastroRota = () => {
-  const navigation = useNavigation();
+const CadastroRota = ({ navigation }) => {
 
   const [nomeMotorista, setNomeMotorista] = useState('');
   const [numeroMotorista, setNumeroMotorista] = useState('');
@@ -20,16 +20,19 @@ const CadastroRota = () => {
       tamanhoSuporte,
       enderecoFinal,
     };
-
-    await enviarDadosAoBanco(dadosRota);
-
-    navigation.navigate('Rotas', dadosRota);
-  };
-
-  const enviarDadosAoBanco = async (dados) => {
-    console.log('Enviando dados ao banco:', dados);
-    // Simulação de envio de dados ao banco de dados
-  };
+  
+    try {
+      const response = await axios.post("http://localhost:8081/api/rotas", dadosRota);
+      if (response.status === 201) {
+        console.log('Rota cadastrada com sucesso');
+        navigation.navigate('Rotas');
+      } else {
+        console.error('Erro ao cadastrar a rota:', response.data);
+      }
+    } catch (error) {
+      console.error('Erro ao cadastrar a rota:', error.response ? error.response.data : error.message);
+    }
+  };  
 
   return (
     <View style={styles.container}>

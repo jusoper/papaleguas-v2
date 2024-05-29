@@ -1,8 +1,51 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Home = ({ navigation }) => {
+  const [ultimoEnvio, setUltimoEnvio] = useState(null);
+  const [ultimaRota, setUltimaRota] = useState(null);
+
+  const fetchUltimoEnvio = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/produtos');
+      const envios = response.data;
+      if (envios.length > 0) {
+        const sortedEnvios = envios.sort((a, b) => b.id - a.id);
+        setUltimoEnvio(sortedEnvios[0]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar o último envio:', error);
+    }
+  };
+
+  const fetchUltimaRota = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/rotas');
+      const rotas = response.data;
+      if (rotas.length > 0) {
+        setUltimaRota(rotas[rotas.length - 1]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar a última rota:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUltimoEnvio();
+    fetchUltimaRota(); // Carrega as rotas quando o componente for montado
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUltimoEnvio();
+    fetchUltimaRota(); // Recarrega as rotas toda vez que a tela receber foco
+    }, [])
+  );
+
   const navigationItems = [
     { name: 'Home', icon: 'home', screen: 'Home', color: '#2B2D82' },
     { name: 'Box', icon: 'cube', screen: 'Envios' },
@@ -31,29 +74,53 @@ const Home = ({ navigation }) => {
           <Text style={styles.userName}>Julia</Text>
         </View>
 
-        <Text style={styles.sectionTitle}>Próxima Atividade</Text>
+        <Text style={styles.sectionTitle}>Último Envio</Text>
+        {ultimoEnvio ? (
+          <View style={styles.box}>
+            <View style={styles.iconContainer}>
+              <Icon name="cube" size={24} color="#FFFFFF" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                {ultimoEnvio.enderecoColeta} -> {ultimoEnvio.enderecoEntrega}
+              </Text>
+              <Text style={styles.text}>
+                {ultimoEnvio.tamanhoProduto} | {ultimoEnvio.nomeRemetente} | {ultimoEnvio.numeroRemetente}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.noDataText}>Nenhum envio encontrado</Text>
+        )}
 
-        <View style={styles.bannerContainer}>
-          <View style={styles.bannerIconContainer}>
-          <Icon name="car" size={30} color="#FFFFFF" />
+        <Text style={styles.sectionTitle}>Última Rota</Text>
+        {ultimaRota ? (
+          <View style={styles.box}>
+            <View style={styles.iconContainer}>
+              <Icon name="road" size={24} color="#FFFFFF" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                {ultimaRota.enderecoOrigem} -> {ultimaRota.enderecoFinal}
+              </Text>
+              <Text style={styles.text}>
+                {ultimaRota.tamanhoSuporte} | {ultimaRota.nomeMotorista} | {ultimaRota.numeroMotorista}
+              </Text>
+            </View>
           </View>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerTitle}>Envio/Carona</Text>
-            <Text style={styles.bannerText}>
-              Status | Localização | Data
-            </Text>
-          </View>
-        </View>
+        ) : (
+          <Text style={styles.noDataText}>Nenhuma rota encontrada</Text>
+        )}
 
         <Text style={styles.sectionTitle}>Acelere sua vida</Text>
 
         {/* Banner Azul */}
         <View style={styles.bannerContainer}>
           <View style={styles.bannerIconContainer}>
-          <Image
-            style={styles.bannerPicture}
-            source={require('../assets/images/banner-papaleguas.png')}
-          />
+            <Image
+              style={styles.bannerPicture}
+              source={require('../assets/images/banner-papaleguas.png')}
+            />
           </View>
           <View style={styles.bannerTextContainer}>
             <Text style={styles.bannerTitle}>Entregas velozes, como o vento!</Text>
@@ -64,7 +131,7 @@ const Home = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Barra de Navegação */}
+     {/* Barra de Navegação */}
       <View style={styles.navigationBar}>
         {navigationItems.map((item, index) => (
           <TouchableOpacity 
@@ -87,6 +154,7 @@ const Home = ({ navigation }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -139,6 +207,32 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#000000',
   },
+  box: {
+    flexDirection: 'row',
+    backgroundColor: '#2B2D82',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+    width: '100%',
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  text: {
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  noDataText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#525252',
+  },
   bannerContainer: {
     flexDirection: 'row',
     width: '100%',
@@ -166,11 +260,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     marginTop: 5,
-  },
-  mainContent: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: 'transparent',
   },
   navigationBar: {
     position: 'absolute',

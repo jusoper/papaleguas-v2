@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
-
-const CadastroProduto = () => {
-  const navigation = useNavigation();
-
+const CadastroProduto = ({ navigation }) => {
   const [nomeRemetente, setNomeRemetente] = useState('');
   const [numeroRemetente, setNumeroRemetente] = useState('');
   const [enderecoColeta, setEnderecoColeta] = useState('');
@@ -148,7 +144,7 @@ const CadastroProduto = () => {
           />
         </View>
 
-        <Text style={styles.label}>Número do Destinatário</Text>
+        <Text  style={styles.label}>Número do Destinatário</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -288,3 +284,4 @@ const styles = StyleSheet.create({
 });
 
 export default CadastroProduto;
+

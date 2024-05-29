@@ -1,8 +1,14 @@
+// App.js
 import React from 'react';
-import Navigation from './src/navigation/Navigation.js';
+import Navigation from './src/navigation/Navigation';
+import { EnviosProvider } from './EnviosContext.js'; // Importe o EnviosProvider
 
 const App = () => {
-  return <Navigation />;
+  return (
+    <EnviosProvider>
+      <Navigation />
+    </EnviosProvider>
+  );
 };
 
 export default App;

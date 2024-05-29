@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Rotas = ({ navigation }) => {
+  const [rotas, setRotas] = useState([]);
+
+  const fetchRotas = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/rotas');
+      setRotas(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar rotas:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRotas(); // Carrega as rotas quando o componente for montado
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRotas(); // Recarrega as rotas toda vez que a tela receber foco
+    }, [])
+  );
+
   const navigationItems = [
     { name: 'Home', icon: 'home', screen: 'Home', color: '#525252' },
     { name: 'Envios', icon: 'cube', screen: 'Envios', color: '#525252' },
@@ -10,6 +33,9 @@ const Rotas = ({ navigation }) => {
     { name: 'Route', icon: 'road', screen: 'Rotas', color: '#2B2D82' },
     { name: 'User', icon: 'user', screen: 'Conta', color: '#525252' },
   ];
+
+  // Ordena as rotas por ID em ordem decrescente
+  const sortedRotas = [...rotas].sort((a, b) => b.id - a.id);
 
   return (
     <View style={styles.container}>
@@ -30,69 +56,46 @@ const Rotas = ({ navigation }) => {
           />
           <Text style={styles.userName}>Julia</Text>
         </View>
-        <Text style={styles.sectionTitle}>Rotas Cadastradas</Text>
 
-<View style={styles.bannerContainer}>
-  <View style={styles.bannerIconContainer}>
-    <Icon name="car" size={30} color="#FFFFFF" />
-  </View>
-  <View style={styles.bannerTextContainer}>
-    <Text style={styles.bannerTitle}>Atibaia - Campinas</Text>
-    <Text style={styles.bannerText}>
-      Status | Pacotes Médios | 24/05
-    </Text>
-  </View>
-</View>
+        <Text style={styles.sectionTitle}>Próxima Rota</Text>
 
-<View style={styles.bannerContainer}>
-  <View style={styles.bannerIconContainer}>
-    <Icon name="car" size={30} color="#FFFFFF" />
-  </View>
-  <View style={styles.bannerTextContainer}>
-    <Text style={styles.bannerTitle}>Jarinu - São Paulo</Text>
-    <Text style={styles.bannerText}>
-      Status | Pacotes Pequenos | 25/05
-    </Text>
-  </View>
-</View>
+        {/* Renderiza a rota mais recente */}
+        {sortedRotas.length > 0 ? (
+          <View style={styles.box}>
+            <View style={styles.iconContainer}>
+              <Icon name="road" size={24} color="#FFFFFF" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                {sortedRotas[0].enderecoOrigem} -> {sortedRotas[0].enderecoFinal}
+              </Text>
+              <Text style={styles.text}>
+                {sortedRotas[0].tamanhoSuporte} | {sortedRotas[0].nomeMotorista} | {sortedRotas[0].numeroMotorista}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.noRotasText}>Nenhuma rota encontrada</Text>
+        )}
 
-<Text style={styles.sectionTitle}>Possíveis Caronas</Text>
+        <Text style={styles.sectionTitle}>Últimas Rotas</Text>
 
-<View style={styles.bannerContainer}>
-  <View style={styles.bannerIconContainer}>
-    <Icon name="cube" size={30} color="#FFFFFF" />
-  </View>
-  <View style={styles.bannerTextContainer}>
-    <Text style={styles.bannerTitle}>Envio/Carona</Text>
-    <Text style={styles.bannerText}>
-      Pacote Médio | Atibaia | 24/05
-    </Text>
-  </View>
-</View>
-
-<View style={styles.bannerContainer}>
-  <View style={styles.bannerIconContainer}>
-    <Icon name="file-text" size={30} color="#FFFFFF" />
-  </View>
-  <View style={styles.bannerTextContainer}>
-    <Text style={styles.bannerTitle}>Envio/Carona</Text>
-    <Text style={styles.bannerText}>
-      Pacote Pequeno | Jarinu | 25/05
-    </Text>
-  </View>
-</View>
-
-<View style={styles.bannerContainer}>
-  <View style={styles.bannerIconContainer}>
-    <Icon name="shopping-cart" size={30} color="#FFFFFF" />
-  </View>
-  <View style={styles.bannerTextContainer}>
-    <Text style={styles.bannerTitle}>Envio</Text>
-    <Text style={styles.bannerText}>
-      Pacote Grande | Jarinu | 25/05
-    </Text>
-  </View>
-</View>
+        {/* Renderiza as rotas restantes */}
+        {sortedRotas.slice(1).map((rota, index) => (
+          <View key={index} style={styles.box}>
+            <View style={styles.iconContainer}>
+              <Icon name="road" size={24} color="#FFFFFF" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                {rota.enderecoOrigem} -> {rota.enderecoFinal}
+              </Text>
+              <Text style={styles.text}>
+                {rota.tamanhoSuporte} | {rota.nomeMotorista} | {rota.numeroMotorista}
+              </Text>
+            </View>
+          </View>
+        ))}
       </View>
 
       {/* Barra de Navegação */}
@@ -154,10 +157,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: '#CCCCCC',
   },
-  bannerPicture: {
-    width: 100,
-    height: 100,
-  },
   userName: {
     marginLeft: 10,
     fontSize: 20,
@@ -170,38 +169,31 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#000000',
   },
-  bannerContainer: {
+  box: {
     flexDirection: 'row',
-    width: '100%',
     backgroundColor: '#2B2D82',
     borderRadius: 10,
-    marginTop: 10,
     padding: 10,
-    alignItems: 'center',
+    marginTop: 10,
+    width: '100%',
   },
-  bannerIconContainer: {
-    width: '20%',
+  iconContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 10,
+  },
+  textContainer: {
+    flex: 1,
     justifyContent: 'center',
   },
-  bannerTextContainer: {
-    width: '80%',
-    paddingLeft: 10,
-  },
-  bannerTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  bannerText: {
+  text: {
     color: '#FFFFFF',
     fontSize: 14,
-    marginTop: 5,
   },
-  mainContent: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: 'transparent',
+  noRotasText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#525252',
   },
   navigationBar: {
     position: 'absolute',

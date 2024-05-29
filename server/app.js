@@ -53,6 +53,48 @@ app.post('/api/produtos', (req, res) => {
   });
 });
 
+// server.js
+
+// Rota para inserir uma nova rota
+app.post('/api/rotas', (req, res) => {
+  const { nomeMotorista, numeroMotorista, enderecoOrigem, tamanhoSuporte, enderecoFinal } = req.body;
+  if (!nomeMotorista || !numeroMotorista || !enderecoOrigem || !tamanhoSuporte || !enderecoFinal) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+  }
+
+  connection.query('INSERT INTO rotas (nomeMotorista, numeroMotorista, enderecoOrigem, tamanhoSuporte, enderecoFinal) VALUES (?, ?, ?, ?, ?)', [nomeMotorista, numeroMotorista, enderecoOrigem, tamanhoSuporte, enderecoFinal], (err, results) => {
+    if (err) {
+      console.error('Erro ao inserir rota:', err);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+    res.status(201).json({ id: results.insertId });
+  });
+});
+
+// Rota para obter todos os produtos
+app.get('/api/produtos', (req, res) => {
+  connection.query('SELECT * FROM produtos', (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar produtos:', err);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+    res.json(results);
+  });
+});
+
+// Rota para obter todos os rotas
+app.get('/api/rotas', (req, res) => {
+  connection.query('SELECT * FROM rotas', (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar produtos:', err);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+    res.json(results);
+  });
+});
+
+
+
 // Inicia o servidor na porta 8081
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {

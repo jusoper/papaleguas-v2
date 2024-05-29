@@ -2,22 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Envios = ({ navigation }) => {
   const [envios, setEnvios] = useState([]);
 
-  useEffect(() => {
-    async function fetchEnvios() {
-      try {
-        const response = await axios.get('http://localhost:3001/produtos');
-        setEnvios(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar envios:', error);
-      }
+  const fetchEnvios = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/produtos');
+      setEnvios(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar envios:', error);
     }
+  };
 
-    fetchEnvios();
+  useEffect(() => {
+    fetchEnvios(); // Carrega os envios quando o componente for montado
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchEnvios(); // Recarrega os envios toda vez que a tela receber foco
+    }, [])
+  );
 
   const navigationItems = [
     { name: 'Home', icon: 'home', screen: 'Home', color: '#525252' },
@@ -26,6 +33,9 @@ const Envios = ({ navigation }) => {
     { name: 'Route', icon: 'road', screen: 'Rotas', color: '#525252' },
     { name: 'User', icon: 'user', screen: 'Conta', color: '#525252' },
   ];
+
+  // Ordena os envios por ID em ordem decrescente
+  const sortedEnvios = [...envios].sort((a, b) => b.id - a.id);
 
   return (
     <View style={styles.container}>
@@ -49,24 +59,43 @@ const Envios = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>Próximo Envio</Text>
 
-        {/* Se existirem envios, renderize-os */}
-        {envios.map((envio, index) => (
-          <View key={index} style={styles.bannerContainer}>
-            <View style={styles.bannerIconContainer}>
-              <Icon name="cube" size={30} color="#FFFFFF" />
+        {/* Renderiza o envio mais recente */}
+        {sortedEnvios.length > 0 ? (
+          <View style={styles.box}>
+            <View style={styles.iconContainer}>
+              <Icon name="cube" size={24} color="#FFFFFF" />
             </View>
-            <View style={styles.bannerTextContainer}>
-              <Text style={styles.bannerTitle}>Envio</Text>
-              <Text style={styles.bannerText}>
-                {envio.tamanhoProduto} | {envio.enderecoColeta} | {envio.data}
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                {sortedEnvios[0].enderecoColeta} -> {sortedEnvios[0].enderecoEntrega}
+              </Text>
+              <Text style={styles.text}>
+                {sortedEnvios[0].tamanhoProduto} | {sortedEnvios[0].nomeRemetente} | {sortedEnvios[0].numeroRemetente}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.noEnviosText}>Nenhum envio encontrado</Text>
+        )}
+
+        <Text style={styles.sectionTitle}>Últimos Envios</Text>
+
+        {/* Renderiza os envios restantes */}
+        {sortedEnvios.slice(1).map((envio, index) => (
+          <View key={index} style={styles.box}>
+            <View style={styles.iconContainer}>
+              <Icon name="cube" size={24} color="#FFFFFF" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                {envio.enderecoColeta} -> {envio.enderecoEntrega}
+              </Text>
+              <Text style={styles.text}>
+                {envio.tamanhoProduto} | {envio.nomeRemetente} | {envio.numeroRemetente}
               </Text>
             </View>
           </View>
         ))}
-
-        <Text style={styles.sectionTitle}>Últimos Envios</Text>
-
-        {/* Restante do código... */}
       </View>
 
       {/* Barra de Navegação */}
@@ -128,10 +157,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: '#CCCCCC',
   },
-  bannerPicture: {
-    width: 100,
-    height: 100,
-  },
   userName: {
     marginLeft: 10,
     fontSize: 20,
@@ -144,38 +169,31 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#000000',
   },
-  bannerContainer: {
+  box: {
     flexDirection: 'row',
-    width: '100%',
     backgroundColor: '#2B2D82',
     borderRadius: 10,
-    marginTop: 10,
     padding: 10,
-    alignItems: 'center',
+    marginTop: 10,
+    width: '100%',
   },
-  bannerIconContainer: {
-    width: '20%',
+  iconContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 10,
+  },
+  textContainer: {
+    flex: 1,
     justifyContent: 'center',
   },
-  bannerTextContainer: {
-    width: '80%',
-    paddingLeft: 10,
-  },
-  bannerTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  bannerText: {
+  text: {
     color: '#FFFFFF',
     fontSize: 14,
-    marginTop: 5,
   },
-  mainContent: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: 'transparent',
+  noEnviosText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#525252',
   },
   navigationBar: {
     position: 'absolute',
